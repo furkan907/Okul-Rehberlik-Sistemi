@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Okul Rehberlik ve Risk Haritası Yönetim Sistemi — Yönetici Girişi" />
+  <title>Yönetici Girişi — Rehberlik Sistemi</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+
+  <!-- Stiller (Deneme Takip anasayfasıyla birebir aynı görünüm) -->
+  <link rel="stylesheet" href="../../css/global.css" />
+  <link rel="stylesheet" href="../../css/temalar.css" />
+  <link rel="stylesheet" href="../../css/anasayfa.css" />
+</head>
+
+<body class="login-page">
+  <div id="particles-js" aria-hidden="true"></div>
+  <div class="landing-container">
+
+    <!-- ================================================
+         SOL PANEL — Görsel / Marka
+         ================================================ -->
+    <aside class="intro-section" aria-hidden="true">
+      <div class="intro-content">
+        <h1 class="brand-title">Okul Rehberlik Sistemi<br />Risk Haritası/Riba</h1>
+        <p class="brand-subtitle">
+          Risk haritalarını ve Riba anketlerini tek panelden yönetin.
+        </p>
+
+        <ul class="feature-list">
+          <li class="feature-item">
+            <span class="feature-icon">📊</span>
+            <div>
+              <strong>Risk Haritası</strong>
+              <span>Okul geneli eğilimleri ve kritik alanları tek panelden izleyin.</span>
+            </div>
+          </li>
+          <li class="feature-item">
+            <span class="feature-icon">👨‍👩‍👧</span>
+            <div>
+              <strong>Aile ve Öğrenci Takibi</strong>
+              <span>Veli formları, RİBA sonuçları ve sınıf bazlı durumları bir araya getirin.</span>
+            </div>
+          </li>
+          <li class="feature-item">
+            <span class="feature-icon">🧭</span>
+            <div>
+              <strong>Karar Destek</strong>
+              <span>Rehberlik servisinin önceliklerini veriye dayalı biçimde belirleyin.</span>
+            </div>
+          </li>
+        </ul>
+
+      </div>
+    </aside>
+
+    <!-- ================================================
+         SAĞ PANEL — Giriş / Kayıt Formu
+         ================================================ -->
+    <main class="login-section">
+      <div class="login-card">
+        <div class="login-header brand-header">
+          <img
+            class="login-logo"
+            src="../../images/logo.png"
+            alt="Okul Logosu"
+          />
+          <h2 class="login-title">
+            <span class="login-title-line">BOZKURT</span><br />
+            <span class="login-title-line login-title-line-compact">İLÇE MİLLİ EĞİTİM MÜDÜRLÜĞÜ</span><br />
+            <span class="login-title-line">OKUL REHBERLİK SİSTEMİ</span>
+          </h2>
+        </div>
+
+        <!-- Sekme Geçişi -->
+        <div class="form-tabs">
+          <button class="form-tab aktif" id="tab-giris" type="button">Giriş Yap</button>
+          <button class="form-tab" id="tab-kayit" type="button">Kayıt Ol</button>
+        </div>
+
+        <!-- ===== GİRİŞ PANELİ ===== -->
+        <div id="panel-giris">
+
+          <!-- Hata Mesajı -->
+          <div class="login-error error-message" id="login-error" role="alert">
+            <span>⚠</span>
+            <span id="error-text">Bir hata oluştu.</span>
+          </div>
+
+          <!-- Form -->
+          <form id="login-form" novalidate>
+
+            <!-- E-posta -->
+            <div class="field input-group">
+              <label class="field-label" for="email">E-posta Adresi</label>
+              <input
+                class="input"
+                type="email"
+                id="email"
+                name="email"
+                placeholder="ornek@meb.gov.tr"
+                autocomplete="email"
+                required
+              />
+              <span class="field-error" id="email-error">Geçerli bir e-posta giriniz.</span>
+            </div>
+
+            <!-- Şifre -->
+            <div class="field input-group">
+              <label class="field-label" for="password">Şifre</label>
+              <input
+                class="input"
+                type="password"
+                id="password"
+                name="password"
+                placeholder="••••••••"
+                autocomplete="current-password"
+                required
+              />
+              <span class="field-error" id="password-error">Şifre en az 6 karakter olmalıdır.</span>
+            </div>
+
+            <!-- Beni Hatırla -->
+            <div class="input-group checkbox-group">
+              <input type="checkbox" id="rememberMe">
+              <label for="rememberMe">Beni Hatırla</label>
+              <a href="#" id="link-sifremi-unuttum" class="forgot-link">Şifremi Unuttum</a>
+            </div>
+
+            <!-- Giriş Butonu -->
+            <button type="submit" class="btn btn-primary btn-full btn-login" id="login-btn">
+              <span class="spinner" aria-hidden="true"></span>
+              <span class="btn-text">Giriş Yap</span>
+            </button>
+
+          </form>
+
+        </div><!-- /panel-giris -->
+
+        <!-- ===== KAYIT PANELİ ===== -->
+        <div id="panel-kayit" style="display:none">
+
+          <!-- Hata Mesajı -->
+          <div class="login-error error-message" id="register-error" role="alert">
+            <span>⚠</span>
+            <span id="register-error-text">Bir hata oluştu.</span>
+          </div>
+
+          <!-- Başarı Mesajı -->
+          <div id="register-success" style="display:none;background:#dcfce7;border:1px solid #86efac;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1rem;color:#166534;font-size:.9rem;line-height:1.5">
+            <strong>Talebiniz alındı!</strong><br>
+            Sistem yöneticisi hesabınızı onayladıktan sonra giriş yapabilirsiniz.
+          </div>
+
+          <!-- Kayıt Formu -->
+          <form id="register-form" novalidate>
+
+            <!-- Ad Soyad -->
+            <div class="field input-group">
+              <label class="field-label" for="reg-adsoyad">Ad Soyad</label>
+              <input class="input" type="text" id="reg-adsoyad" placeholder="Furkan GÜNAYDIN" required />
+              <span class="field-error" id="reg-adsoyad-error">Ad soyad giriniz.</span>
+            </div>
+
+            <!-- Telefon -->
+            <div class="field input-group">
+              <label class="field-label" for="reg-telefon">Telefon Numarası</label>
+              <input class="input" type="tel" id="reg-telefon" placeholder="05XX XXX XX XX" autocomplete="tel" required />
+              <span class="field-error" id="reg-telefon-error">Geçerli bir telefon numarası giriniz (05XX...).</span>
+            </div>
+
+            <!-- E-posta -->
+            <div class="field input-group">
+              <label class="field-label" for="reg-email">E-posta Adresi</label>
+              <input class="input" type="email" id="reg-email" placeholder="ornek@meb.gov.tr" autocomplete="email" required />
+              <span class="field-error" id="reg-email-error">Geçerli bir e-posta giriniz.</span>
+            </div>
+
+            <!-- Şifre -->
+            <div class="field input-group">
+              <label class="field-label" for="reg-password">Şifre</label>
+              <input class="input" type="password" id="reg-password" placeholder="En az 6 karakter" autocomplete="new-password" required />
+              <span class="field-error" id="reg-password-error">Şifre en az 6 karakter olmalıdır.</span>
+            </div>
+
+            <!-- Kurum Kodu (MEB / e-Okul) -->
+            <div class="field input-group">
+              <label class="field-label" for="reg-kurum-kodu">MEB Kurum Kodu</label>
+              <input class="input" type="text" id="reg-kurum-kodu" placeholder="123456"
+                     inputmode="numeric" autocomplete="off" required />
+              <span style="font-size:.78rem;color:var(--neutral-500);margin-top:.3rem;display:block">
+              </span>
+              <span class="field-error" id="reg-kurum-kodu-error">Geçerli bir kurum kodu giriniz (5–9 rakam).</span>
+            </div>
+
+            <!-- Okul Adı (görüntü için) -->
+            <div class="field input-group">
+              <label class="field-label" for="reg-okul-adi">Okul Adı</label>
+              <input class="input" type="text" id="reg-okul-adi" placeholder="Okulunuzun Adı" required />
+              <span class="field-error" id="reg-okul-adi-error">Okul adı giriniz.</span>
+            </div>
+
+            <!-- Rol Seçimi (okul durumuna göre dinamik) -->
+            <div class="field" id="reg-rol-alan">
+              <label class="field-label">Göreviniz</label>
+              <div id="reg-rol-container" style="display:flex;flex-direction:column;gap:.5rem;margin-top:.25rem">
+                <!-- JS tarafından doldurulur -->
+                <p id="reg-okul-kontrol-mesaj" style="font-size:.83rem;color:var(--neutral-500)">Kurum kodu girdikçe görev seçenekleri belirlenir...</p>
+              </div>
+              <span class="field-error" id="reg-rol-error">Görev seçiniz.</span>
+            </div>
+
+            <!-- Kayıt Butonu -->
+            <button type="submit" class="btn btn-primary btn-full btn-login" id="register-btn">
+              <span class="spinner" aria-hidden="true"></span>
+              <span class="btn-text">Kayıt Ol</span>
+            </button>
+
+          </form>
+
+          <p class="login-footer-note">
+            Zaten hesabınız var mı?
+            <a href="#" id="link-girise-don" style="color:var(--primary);text-decoration:none;font-weight:600">Giriş yapın</a>
+          </p>
+
+        </div><!-- /panel-kayit -->
+
+      </div><!-- /login-card -->
+    </main>
+
+  </div><!-- /landing-container -->
+
+  <!-- ================================================
+       ŞİFREMİ UNUTTUM MODALI
+       ================================================ -->
+  <div class="forgot-overlay" id="forgot-overlay" aria-hidden="true">
+    <div class="forgot-modal" role="dialog" aria-modal="true" aria-labelledby="forgot-title">
+      <button type="button" class="forgot-close" id="forgot-close" aria-label="Kapat">✕</button>
+
+      <!-- Form görünümü -->
+      <div id="forgot-form-view">
+        <h3 class="forgot-title" id="forgot-title">Şifremi Unuttum</h3>
+        <p class="forgot-subtitle">
+          Kayıtlı e-posta adresinizi girin. Şifre sıfırlama bağlantısı bu adrese gönderilir.
+        </p>
+
+        <div class="login-error error-message" id="forgot-error" role="alert">
+          <span>⚠</span>
+          <span id="forgot-error-text">Bir hata oluştu.</span>
+        </div>
+
+        <form id="forgot-form" novalidate>
+          <div class="field input-group">
+            <label class="field-label" for="forgot-email">E-posta Adresi</label>
+            <input
+              class="input"
+              type="email"
+              id="forgot-email"
+              name="forgot-email"
+              placeholder="ornek@meb.gov.tr"
+              autocomplete="email"
+              required
+            />
+            <span class="field-error" id="forgot-email-error">Geçerli bir e-posta giriniz.</span>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-full" id="forgot-btn">
+            <span class="spinner" aria-hidden="true"></span>
+            <span class="btn-text">Sıfırlama Bağlantısı Gönder</span>
+          </button>
+        </form>
+
+        <p class="login-footer-note">
+          <a href="#" id="forgot-back-to-login" style="color:var(--primary);text-decoration:none;font-weight:600">Giriş sayfasına dön</a>
+        </p>
+      </div>
+
+      <!-- Başarı görünümü -->
+      <div id="forgot-success-view" style="display:none">
+        <h3 class="forgot-title">E-posta Gönderildi ✓</h3>
+        <p class="forgot-subtitle">
+          Şifre sıfırlama bağlantısı <strong id="forgot-sent-email"></strong> adresine gönderildi.
+          Lütfen gelen kutunuzu (ve spam klasörünü) kontrol edin.
+        </p>
+        <button type="button" class="btn btn-primary btn-full" id="forgot-done">Tamam</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Giriş Mantığı -->
+  <script type="module" src="../../js/login.js"></script>
+</body>
+</html>

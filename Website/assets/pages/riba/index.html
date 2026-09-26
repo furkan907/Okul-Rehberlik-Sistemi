@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="RİBA Rehberlik İhtiyaç Belirleme Anketi" />
+  <title>RİBA Anketi — Rehberlik Sistemi</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="../../css/global.css" />
+  <link rel="stylesheet" href="../../css/form.css" />
+  <style>
+    /* ---- RİBA özel stiller ---- */
+    html,
+    body {
+      height: 100%;
+      overflow: hidden;
+    }
+    body {
+      font-family: "Plus Jakarta Sans", "Segoe UI", system-ui, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(14, 165, 233, 0.18), transparent 28%),
+        radial-gradient(circle at top right, rgba(29, 78, 216, 0.16), transparent 30%),
+        linear-gradient(180deg, #eef6ff 0%, #f8fbff 42%, #f2f6fb 100%);
+      min-height: 100dvh;
+    }
+    .form-page {
+      position: relative;
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      min-height: 100dvh;
+      height: 100dvh;
+      padding: .5rem;
+      background:
+        radial-gradient(circle at 0% 0%, rgba(125, 211, 252, 0.22), transparent 22%),
+        radial-gradient(circle at 100% 10%, rgba(59, 130, 246, 0.18), transparent 24%),
+        linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,0));
+      overflow: hidden;
+    }
+    .form-page::before,
+    .form-page::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      filter: blur(10px);
+      pointer-events: none;
+      opacity: .55;
+    }
+    .form-page::before {
+      width: 220px;
+      height: 220px;
+      top: -70px;
+      right: -80px;
+      background: rgba(56, 189, 248, 0.22);
+    }
+    .form-page::after {
+      width: 180px;
+      height: 180px;
+      left: -60px;
+      bottom: 12%;
+      background: rgba(29, 78, 216, 0.16);
+    }
+    .form-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      max-width: 760px;
+      height: 100%;
+      max-height: 100%;
+      border: 1px solid rgba(255,255,255,.7);
+      background: rgba(255,255,255,.84);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 22px 60px rgba(15, 23, 42, 0.14);
+      overflow: hidden;
+    }
+    .form-card.riba-soru-modu {
+      max-width: 1080px;
+    }
+    .form-card-header {
+      flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+      padding: 1.35rem 1.1rem 1.1rem;
+      background:
+        radial-gradient(circle at top right, rgba(125, 211, 252, 0.34), transparent 28%),
+        linear-gradient(135deg, #0f3d91 0%, #1857c2 56%, #1795da 100%);
+    }
+    .form-card[data-tur="veli"] .form-card-header {
+      background:
+        radial-gradient(circle at top right, rgba(234, 236, 149, 0.9), transparent 30%),
+        linear-gradient(135deg, #f7f3bc 0%, #efe88f 54%, #dfe56f 100%);
+    }
+
+    .form-card[data-tur="veli"] .form-card-header::after {
+      background: linear-gradient(135deg, rgba(255,255,255,.44), rgba(255,255,255,0));
+    }
+
+    .form-card[data-tur="veli"] .form-card-header,
+    .form-card[data-tur="veli"] .form-card-header h1,
+    .form-card[data-tur="veli"] .form-card-header .school-label,
+    .form-card[data-tur="veli"] .form-card-header .form-type-label {
+      color: #6e7342;
+    }
+    .form-card[data-tur="ogretmen"] .form-card-header {
+      background:
+        radial-gradient(circle at top right, rgba(254, 212, 212, 0.88), transparent 30%),
+        linear-gradient(135deg, #fde2e2 0%, #f8b3b3 54%, #f38e8e 100%);
+    }
+
+    .form-card[data-tur="ogretmen"] .form-card-header::after {
+      background: linear-gradient(135deg, rgba(255,255,255,.42), rgba(255,255,255,0));
+    }
+
+    .form-card[data-tur="ogretmen"] .form-card-header,
+    .form-card[data-tur="ogretmen"] .form-card-header h1,
+    .form-card[data-tur="ogretmen"] .form-card-header .school-label,
+    .form-card[data-tur="ogretmen"] .form-card-header .form-type-label {
+      color: #b54444;
+    }
+    .form-card-header::after {
+      content: "";
+      position: absolute;
+      inset: auto -24px -54px auto;
+      width: 170px;
+      height: 170px;
+      border-radius: 40px;
+      background: linear-gradient(135deg, rgba(255,255,255,.22), rgba(255,255,255,0));
+      transform: rotate(22deg);
+      pointer-events: none;
+    }
+    .form-card-header .school-label,
+    .form-card-header h1,
+    .form-card-header .form-type-label,
+    .form-card-header .header-chip-row,
+    .form-card-header .sinif-chip,
+    .form-card-header .katilimci-chip {
+      position: relative;
+      z-index: 1;
+    }
+    .form-card-header .school-label {
+      font-family: "Manrope", "Segoe UI", system-ui, sans-serif;
+      font-size: clamp(1rem, 2.6vw, 1.45rem);
+      font-weight: 800;
+      letter-spacing: -.03em;
+      line-height: 1.25;
+      text-transform: uppercase;
+      opacity: .95;
+      margin-bottom: .65rem;
+    }
+    .form-card-header h1 {
+      font-family: "Manrope", "Segoe UI", system-ui, sans-serif;
+      font-size: clamp(1rem, 2.6vw, 1.45rem);
+      font-weight: 800;
+      line-height: 1.25;
+      letter-spacing: -.03em;
+      margin-bottom: .3rem;
+      max-width: none;
+      text-transform: uppercase;
+    }
+    .form-card-header .form-type-label {
+      display: block;
+      font-family: "Manrope", "Segoe UI", system-ui, sans-serif;
+      font-size: clamp(1rem, 2.6vw, 1.45rem);
+      font-weight: 800;
+      letter-spacing: -.03em;
+      line-height: 1.25;
+      text-transform: uppercase;
+      margin-bottom: .65rem;
+    }
+    .form-card-header .sinif-chip,
+    .form-card-header .katilimci-chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: .34rem .9rem;
+      border-radius: 999px;
+      backdrop-filter: blur(8px);
+      background: rgba(255,255,255,.14);
+      border: 1px solid rgba(255,255,255,.22);
+      font-weight: 700;
+      font-size: .95rem;
+      line-height: 1.2;
+    }
+    .form-card-header .header-chip-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .75rem;
+      flex-wrap: nowrap;
+    }
+    .form-card-header .katilimci-chip {
+      display: none;
+      margin-left: auto;
+      min-width: 0;
+      max-width: none;
+      justify-content: flex-end;
+      text-align: right;
+      white-space: normal;
+      overflow: visible;
+      text-overflow: clip;
+    }
+
+    .form-card[data-tur="veli"] .form-card-header .sinif-chip,
+    .form-card[data-tur="veli"] .form-card-header .katilimci-chip {
+      background: rgba(255,255,255,.48);
+      border-color: rgba(207, 205, 121, 0.72);
+      color: #6e7342;
+    }
+
+    .form-card[data-tur="ogretmen"] .form-card-header .sinif-chip,
+    .form-card[data-tur="ogretmen"] .form-card-header .katilimci-chip {
+      background: rgba(255,255,255,.48);
+      border-color: rgba(236, 163, 163, 0.78);
+      color: #a63d3d;
+    }
+    .adim {
+      flex: 1;
+      min-height: 0;
+    }
+    #adim-secim,
+    #adim-ogretmen {
+      overflow: auto;
+    }
+    #adim-secim .ogrenci-listesi {
+      flex: 1;
+      min-height: 0;
+      max-height: none;
+    }
+    #adim-sorular {
+      padding: 0;
+      gap: 0;
+      overflow: hidden;
+    }
+    .riba-soru-card {
+      position: relative;
+      background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(247,250,255,.94));
+      border: 1px solid rgba(148, 163, 184, 0.26);
+      border-radius: 22px;
+      padding: 1rem;
+      margin-bottom: .95rem;
+      box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
+      overflow: hidden;
+    }
+    .riba-soru-card::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 4px;
+      background: linear-gradient(180deg, #1d4ed8, #0ea5e9);
+      opacity: .9;
+    }
+
+    .form-card[data-tur="veli"] .riba-soru-card::before {
+      background: linear-gradient(180deg, #cfb23f, #e9dc76);
+    }
+
+    .form-card[data-tur="ogretmen"] .riba-soru-card::before {
+      background: linear-gradient(180deg, #dd6b6b, #f2a1a1);
+    }
+
+    .riba-soru-ust {
+      display: flex;
+      align-items: flex-start;
+      justify-content: flex-start;
+      gap: .75rem;
+      margin-bottom: .75rem;
+    }
+    .riba-soru-no {
+      display: inline-flex;
+      align-items: center;
+      padding: .28rem .62rem;
+      border-radius: 999px;
+      background: rgba(29, 78, 216, 0.08);
+      border: 1px solid rgba(29, 78, 216, 0.12);
+      font-size: .72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--primary-dark);
+    }
+
+    .form-card[data-tur="veli"] .riba-soru-no {
+      background: rgba(250, 243, 191, 0.92);
+      border-color: rgba(207, 178, 63, 0.38);
+      color: #7a6520;
+    }
+
+    .form-card[data-tur="ogretmen"] .riba-soru-no {
+      background: rgba(253, 228, 228, 0.95);
+      border-color: rgba(221, 107, 107, 0.32);
+      color: #a63d3d;
+    }
+    .riba-soru-baslik {
+      flex: 1;
+      font-family: "Manrope", "Segoe UI", system-ui, sans-serif;
+      font-size: 1.02rem;
+      font-weight: 700;
+      color: var(--neutral-900);
+      line-height: 1.4;
+      margin-bottom: 0;
+    }
+    .riba-secenekler {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: .65rem;
+    }
+    .riba-secenek {
+      display: flex;
+      align-items: flex-start;
+      gap: .75rem;
+      min-height: 100%;
+      padding: .88rem .95rem;
+      border: 1px solid rgba(148, 163, 184, 0.28);
+      border-radius: 18px;
+      cursor: pointer;
+      background: linear-gradient(180deg, #ffffff, #f8fbff);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.6);
+      transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition), background var(--transition);
+      text-align: left;
+      width: 100%;
+      font-family: inherit;
+      font-size: .92rem;
+      color: var(--neutral-800);
+      line-height: 1.5;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    .riba-secenek:hover {
+      transform: translateY(-2px);
+      border-color: rgba(29, 78, 216, 0.48);
+      box-shadow: 0 10px 24px rgba(29, 78, 216, 0.12);
+      background: linear-gradient(180deg, #ffffff, #eef5ff);
+    }
+    .riba-secenek.secili {
+      border-color: var(--primary);
+      background: linear-gradient(180deg, rgba(219,234,254,.9), rgba(240,249,255,.95));
+      color: var(--primary-dark);
+      font-weight: 500;
+      box-shadow: 0 14px 28px rgba(29, 78, 216, 0.16);
+    }
+
+    .form-card[data-tur="veli"] .riba-secenek:hover {
+      border-color: rgba(203, 176, 63, 0.52);
+      box-shadow: 0 10px 24px rgba(202, 175, 71, 0.14);
+      background: linear-gradient(180deg, #fffef5, #fbf6d9);
+    }
+
+    .form-card[data-tur="ogretmen"] .riba-secenek:hover {
+      border-color: rgba(221, 107, 107, 0.5);
+      box-shadow: 0 10px 24px rgba(221, 107, 107, 0.14);
+      background: linear-gradient(180deg, #fff7f7, #fde4e4);
+    }
+
+    .form-card[data-tur="veli"] .riba-secenek.secili {
+      border-color: #d1b23f;
+      background: linear-gradient(180deg, rgba(254, 249, 195, .95), rgba(255, 251, 224, .98));
+      color: #7a6520;
+      box-shadow: 0 14px 28px rgba(212, 185, 78, 0.18);
+    }
+
+    .form-card[data-tur="ogretmen"] .riba-secenek.secili {
+      border-color: #dc6c6c;
+      background: linear-gradient(180deg, rgba(254, 226, 226, .96), rgba(255, 241, 241, .98));
+      color: #9f3b3b;
+      box-shadow: 0 14px 28px rgba(221, 107, 107, 0.18);
+    }
+    .riba-secenek-harf {
+      flex-shrink: 0;
+      width: 2rem;
+      height: 2rem;
+      border-radius: 14px;
+      background: linear-gradient(180deg, #e2e8f0, #cbd5e1);
+      color: var(--neutral-700);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: .85rem;
+      transition: all var(--transition);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.7);
+    }
+    .riba-secenek.secili .riba-secenek-harf {
+      background: linear-gradient(180deg, #1d4ed8, #0ea5e9);
+      color: #fff;
+    }
+
+    .form-card[data-tur="veli"] .riba-secenek.secili .riba-secenek-harf {
+      background: linear-gradient(180deg, #ceb041, #e9d86d);
+      color: #645313;
+    }
+
+    .form-card[data-tur="ogretmen"] .riba-secenek.secili .riba-secenek-harf {
+      background: linear-gradient(180deg, #dc6c6c, #f4a4a4);
+      color: #fff7f7;
+    }
+    .riba-secenek-metin {
+      display: flex;
+      flex-direction: column;
+      gap: .45rem;
+      flex: 1;
+    }
+    .riba-secenek-icerik {
+      line-height: 1.6;
+    }
+    .riba-progress {
+      position: sticky;
+      top: 0;
+      z-index: 4;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      padding: .95rem 1.2rem;
+      background: rgba(248, 250, 252, 0.9);
+      border-bottom: 1px solid rgba(226, 232, 240, 0.85);
+      backdrop-filter: blur(12px);
+      font-size: .82rem;
+      color: var(--neutral-500);
+    }
+    .riba-progress-bar {
+      flex: 1;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(203, 213, 225, 0.65);
+      overflow: hidden;
+    }
+    .riba-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #1d4ed8, #0ea5e9);
+      border-radius: 999px;
+      transition: width .4s ease;
+    }
+
+    .form-card[data-tur="veli"] .riba-progress-fill {
+      background: linear-gradient(90deg, #d7b43d, #ebe27b);
+    }
+
+    .form-card[data-tur="ogretmen"] .riba-progress-fill {
+      background: linear-gradient(90deg, #dd6b6b, #f3aaaa);
+    }
+    .ogretmen-bilgi-form {
+      display: flex;
+      flex-direction: column;
+      gap: .85rem;
+    }
+    .field-label {
+      display: block;
+      font-size: .82rem;
+      font-weight: 600;
+      color: var(--neutral-700);
+      margin-bottom: .3rem;
+    }
+    .sorular-wrap {
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: .9rem;
+    }
+    .riba-hero {
+      display: grid;
+      gap: .9rem;
+      padding: 1rem;
+      border-radius: 22px;
+      background:
+        radial-gradient(circle at top right, rgba(125, 211, 252, 0.24), transparent 30%),
+        linear-gradient(135deg, rgba(29, 78, 216, 0.08), rgba(14, 165, 233, 0.05));
+      border: 1px solid rgba(147, 197, 253, 0.3);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.65);
+    }
+    .riba-hero-ust {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: .8rem;
+    }
+    .riba-hero-etiket {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      padding: .22rem .58rem;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.06);
+      color: var(--neutral-700);
+      font-size: .72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: .45rem;
+    }
+    .riba-hero-baslik {
+      font-family: "Manrope", "Segoe UI", system-ui, sans-serif;
+      font-size: clamp(1.05rem, 2vw, 1.35rem);
+      font-weight: 800;
+      color: var(--neutral-900);
+      line-height: 1.35;
+    }
+    .riba-hero-aciklama {
+      font-size: .9rem;
+      color: var(--neutral-600);
+      line-height: 1.6;
+      margin-top: .32rem;
+    }
+    .riba-hero-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 82px;
+      padding: .55rem .8rem;
+      border-radius: 16px;
+      background: rgba(255,255,255,.65);
+      border: 1px solid rgba(191, 219, 254, 0.7);
+      color: var(--primary-dark);
+      font-size: .8rem;
+      font-weight: 800;
+      box-shadow: 0 10px 24px rgba(37, 99, 235, 0.1);
+    }
+    .riba-tekli-akis {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      min-height: 0;
+    }
+    .eksik-uyari {
+      background: var(--warning-light);
+      border: 1px solid var(--warning);
+      color: var(--warning);
+      border-radius: var(--radius-sm);
+      padding: .6rem .9rem;
+      font-size: .82rem;
+      font-weight: 500;
+      display: none;
+    }
+    .tamamlandi-ekran {
+      padding: 2.5rem 1.75rem;
+      text-align: center;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+    .tamamlandi-ekran.aktif { display: flex; }
+    .tamamlandi-icon {
+      font-size: 3.5rem;
+    }
+    .tamamlandi-baslik {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--success);
+    }
+    .tamamlandi-aciklama {
+      font-size: .9rem;
+      color: var(--neutral-600);
+      line-height: 1.6;
+    }
+    .riba-alt-aksiyonlar {
+      flex-shrink: 0;
+      padding: .7rem 1rem calc(.9rem + env(safe-area-inset-bottom));
+      display: flex;
+      flex-wrap: nowrap;
+      gap: .65rem;
+      border-top: 1px solid rgba(226, 232, 240, 0.9);
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(12px);
+    }
+    .riba-alt-aksiyonlar .eksik-uyari {
+      width: 100%;
+    }
+    .riba-alt-aksiyonlar .btn {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+    .btn {
+      border-radius: 16px;
+      font-weight: 700;
+      letter-spacing: -.01em;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #1d4ed8, #0ea5e9);
+      box-shadow: 0 14px 28px rgba(29, 78, 216, 0.22);
+    }
+
+    .form-card[data-tur="veli"] .btn-primary {
+      color: #6f5b19;
+      background: linear-gradient(135deg, #efe18f, #dcc65d);
+      box-shadow: 0 14px 28px rgba(204, 179, 78, 0.24);
+    }
+
+    .form-card[data-tur="ogretmen"] .btn-primary {
+      color: #fff7f7;
+      background: linear-gradient(135deg, #e88484, #d95b5b);
+      box-shadow: 0 14px 28px rgba(217, 91, 91, 0.24);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: linear-gradient(135deg, #1e3a8a, #0284c7);
+    }
+
+    .form-card[data-tur="veli"] .btn-primary:hover:not(:disabled) {
+      background: linear-gradient(135deg, #e5d06c, #cfb349);
+    }
+
+    .form-card[data-tur="ogretmen"] .btn-primary:hover:not(:disabled) {
+      background: linear-gradient(135deg, #dd6b6b, #c94b4b);
+    }
+
+    .btn-primary.dikkat-cek:not(:disabled) {
+      animation: gonder-vurgu 1.2s ease-in-out infinite;
+      box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.16), 0 18px 34px rgba(29, 78, 216, 0.28);
+    }
+
+    .form-card[data-tur="veli"] .btn-primary.dikkat-cek:not(:disabled) {
+      box-shadow: 0 0 0 4px rgba(235, 226, 123, 0.3), 0 18px 34px rgba(203, 177, 74, 0.3);
+    }
+
+    .form-card[data-tur="ogretmen"] .btn-primary.dikkat-cek:not(:disabled) {
+      box-shadow: 0 0 0 4px rgba(244, 164, 164, 0.32), 0 18px 34px rgba(217, 91, 91, 0.3);
+    }
+    .btn-outline {
+      background: rgba(255,255,255,.8);
+      color: var(--neutral-700);
+      border: 1px solid rgba(203, 213, 225, 0.95);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.7);
+    }
+    .btn-outline:hover:not(:disabled) {
+      background: rgba(241, 245, 249, 0.95);
+      border-color: rgba(148, 163, 184, 0.95);
+    }
+    .ogrenci-item {
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    .form-card[data-tur="veli"] .ogrenci-item:hover {
+      background: rgba(250, 245, 196, 0.82);
+      border-color: #d8bc55;
+    }
+
+    .form-card[data-tur="veli"] .ogrenci-item.secili {
+      background: rgba(248, 240, 177, 0.92);
+      border-color: #d1b23f;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.5);
+    }
+    @keyframes gonder-vurgu {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-1px);
+      }
+    }
+    @media (min-width: 720px) {
+      .form-page {
+        padding: 1.15rem;
+      }
+      .form-card {
+        height: calc(100dvh - 2.3rem);
+        border-radius: 28px;
+      }
+      .form-card-header {
+        padding: 1.85rem 2rem 1.65rem;
+      }
+      .form-card-header .school-label {
+        font-size: 1.55rem;
+      }
+      .form-card-header h1 {
+        font-size: 1.55rem;
+      }
+      .form-card-header .form-type-label {
+        font-size: 1.55rem;
+      }
+      .riba-progress,
+      .sorular-wrap,
+      .riba-alt-aksiyonlar {
+        padding-left: 2rem;
+        padding-right: 2rem;
+      }
+      .riba-secenekler {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .riba-hero {
+        padding: 1.2rem;
+      }
+    }
+    @media (max-width: 719px) {
+      .form-page {
+        padding: 0;
+      }
+      .form-card {
+        max-width: none;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+        background: rgba(255,255,255,.96);
+      }
+      .riba-hero-ust,
+      .riba-soru-ust {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .riba-progress {
+        padding: .82rem 1rem;
+      }
+      .sorular-wrap {
+        padding: .8rem 1rem;
+      }
+      .riba-alt-aksiyonlar {
+        padding: .7rem 1rem calc(.9rem + env(safe-area-inset-bottom));
+      }
+      .riba-soru-card {
+        border-radius: 20px;
+        margin-bottom: 0;
+        padding: .92rem;
+      }
+      .riba-hero-badge {
+        min-width: 0;
+      }
+      .form-card-header .header-chip-row {
+        align-items: flex-start;
+        flex-direction: row;
+        gap: .55rem;
+      }
+      .form-card-header .sinif-chip,
+      .form-card-header .katilimci-chip {
+        font-size: .86rem;
+        line-height: 1.15;
+        padding: .3rem .72rem;
+      }
+      .form-card-header .sinif-chip {
+        flex-shrink: 0;
+      }
+      .riba-soru-ust {
+        flex-direction: row;
+        gap: .55rem;
+        margin-bottom: .55rem;
+      }
+      .riba-soru-no {
+        flex-shrink: 0;
+      }
+      .riba-soru-baslik {
+        font-size: .96rem;
+        line-height: 1.32;
+      }
+      .riba-secenek {
+        gap: .62rem;
+        padding: .78rem .82rem;
+      }
+      .riba-secenek-harf {
+        width: 1.8rem;
+        height: 1.8rem;
+        border-radius: 12px;
+      }
+      .riba-secenek-icerik {
+        line-height: 1.5;
+      }
+      .riba-alt-aksiyonlar .btn {
+        padding-left: .75rem;
+        padding-right: .75rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============ HATA EKRANI ============ -->
+  <div id="hata-ekran" class="hata-ekran hidden">
+    <div style="font-size:3rem;margin-bottom:1rem">🔗</div>
+    <h2>Geçersiz Link</h2>
+    <p id="hata-mesaj">Bu bağlantı hatalı veya eksik. Lütfen okul yönetiminden doğru bağlantıyı isteyin.</p>
+  </div>
+
+  <!-- ============ ANA FORM ============ -->
+  <div id="form-page" class="form-page hidden">
+    <div class="form-card">
+
+      <!-- Başlık -->
+      <div class="form-card-header">
+        <h1>REHBERLİK İHTİYAÇLARI BELİRLEME ANKETİ</h1>
+        <div class="school-label"><span>RİBA</span> <span id="baslik-anket">FORM</span></div>
+        <div class="header-chip-row">
+          <span class="sinif-chip" id="baslik-sinif"></span>
+          <span class="katilimci-chip" id="baslik-katilimci"></span>
+        </div>
+      </div>
+
+      <!-- İlerleme Çubuğu (Soru aşamasında görünür) -->
+      <div id="riba-progress" class="riba-progress" style="display:none">
+        <span id="progress-text">0 / 0</span>
+        <div class="riba-progress-bar">
+          <div id="progress-fill" class="riba-progress-fill" style="width:0%"></div>
+        </div>
+      </div>
+
+      <!-- ---- Adım 1: Öğrenci Seç (sadece öğrenci/veli) ---- -->
+      <div class="adim aktif-adim" id="adim-secim">
+        <div>
+          <p class="adim-baslik" id="secim-baslik" style="display:none"></p>
+          <p class="adim-aciklama" id="secim-aciklama"></p>
+        </div>
+
+        <div class="arama-input-wrap">
+          <span class="arama-icon">🔍</span>
+          <input
+            type="text"
+            id="arama-input"
+            class="input"
+            placeholder="İsme göre ara..."
+            autocomplete="off"
+          />
+        </div>
+
+        <div id="ogrenci-listesi" class="ogrenci-listesi" role="listbox" aria-label="Öğrenci listesi">
+          <p style="text-align:center;padding:1.5rem;color:var(--neutral-400);font-size:.85rem">Yükleniyor...</p>
+        </div>
+
+        <button id="btn-secim-devam" class="btn btn-primary" disabled>
+          Ankete Başla →
+        </button>
+      </div>
+
+      <!-- ---- Adım 1b: Öğretmen Bilgi Formu ---- -->
+      <div class="adim" id="adim-ogretmen">
+        <div>
+          <p class="adim-baslik">Bilgilerinizi girin</p>
+          <p class="adim-aciklama">Adınızı-Soyadınızı ve branşınızı giriniz.</p>
+        </div>
+        <div class="ogretmen-bilgi-form">
+          <div>
+            <label class="field-label" for="ogretmen-ad">Ad Soyad *</label>
+            <input type="text" id="ogretmen-ad" class="input" placeholder="Adınızı ve soyadınızı giriniz" autocomplete="name" />
+          </div>
+          <div>
+            <label class="field-label" for="ogretmen-brans">Branş *</label>
+            <input type="text" id="ogretmen-brans" class="input" placeholder="Ör: Matematik, Türkçe..." autocomplete="off" />
+          </div>
+          <div id="ogretmen-hata" class="eksik-uyari">Lütfen ad soyadınızı ve branşınızı giriniz.</div>
+        </div>
+        <button id="btn-ogretmen-devam" class="btn btn-primary">Ankete Başla →</button>
+      </div>
+
+      <!-- ---- Adım 2: Sorular ---- -->
+      <div class="adim" id="adim-sorular">
+        <div class="sorular-wrap" id="sorular-wrap">
+          <!-- Sorular JS tarafından oluşturulur -->
+        </div>
+        <div class="riba-alt-aksiyonlar">
+          <div id="sorular-uyari" class="eksik-uyari">Lütfen tüm soruları cevaplayın.</div>
+          <button id="btn-onceki-soru" class="btn btn-outline" style="display:none">← Önceki</button>
+          <button id="btn-sonraki-soru" class="btn btn-primary" style="display:none">Sonraki Soru →</button>
+          <button id="btn-gonder" class="btn btn-primary">Anketi Gönder ✓</button>
+        </div>
+      </div>
+
+      <!-- ---- Tamamlandı ---- -->
+      <div id="adim-tamamlandi" class="tamamlandi-ekran">
+        <div class="tamamlandi-icon">✅</div>
+        <div class="tamamlandi-baslik">Anket Tamamlandı!</div>
+        <p class="tamamlandi-aciklama" id="tamamlandi-mesaj">
+          Katılımınız için teşekkür ederiz. Yanıtlarınız başarıyla kaydedildi.
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="toast-container" aria-live="polite"></div>
+
+  <script type="module" src="../../js/riba.js"></script>
+</body>
+</html>

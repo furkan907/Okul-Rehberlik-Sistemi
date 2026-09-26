@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RİBA Raporları — Rehberlik Sistemi</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="../../css/global.css" />
+  <link rel="stylesheet" href="../../css/dashboard.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <style>
+    /* ---- RİBA Rapor özel stiller ---- */
+    body {
+      font-family: "Plus Jakarta Sans", "Segoe UI", system-ui, sans-serif;
+    }
+    .rapor-shell {
+      background:
+        radial-gradient(circle at top right, rgba(125, 211, 252, 0.2), transparent 24%),
+        linear-gradient(180deg, rgba(255,255,255,.96), rgba(248,250,252,.96));
+      border-radius: 26px;
+      border: 1px solid rgba(226, 232, 240, 0.95);
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
+    }
+    .rapor-tabs {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      padding: .35rem;
+      border-radius: 20px;
+      background: rgba(255,255,255,.74);
+      border: 1px solid rgba(226, 232, 240, .95);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, .05);
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+      width: 100%;
+    }
+    .rapor-tab {
+      padding: .72rem 1rem;
+      font-size: .88rem;
+      font-weight: 700;
+      color: var(--neutral-500);
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      border-radius: 16px;
+      transition: all var(--transition);
+      font-family: inherit;
+    }
+    .rapor-tab:hover {
+      color: var(--primary-dark);
+      background: rgba(219, 234, 254, .55);
+    }
+    .rapor-tab.aktif {
+      color: var(--primary-dark);
+      background: linear-gradient(135deg, rgba(219,234,254,.96), rgba(240,249,255,.96));
+      box-shadow: inset 0 0 0 1px rgba(191, 219, 254, .95), 0 10px 20px rgba(59, 130, 246, .12);
+    }
+
+    .kategori-tablo tbody.kategori-grup tr {
+      background-color: var(--grup-bg, #fff);
+    }
+    /* Grup sınırları belirgin border */
+    .kategori-tablo tbody.kategori-grup:first-of-type tr:first-child td {
+      border-top: 2px solid #c8d8e8;
+    }
+    .kategori-tablo tbody.kategori-grup tr:last-child td {
+      border-bottom: 2px solid #c8d8e8;
+    }
+    .kategori-tablo tbody.kategori-grup tr td {
+      border-bottom: 1px solid #dde8f0;
+    }
+    /* dashboard.css'deki genel tr:hover kuralını kategori tablosu için iptal et */
+    .kategori-tablo tbody tr:hover {
+      background: inherit !important;
+    }
+
+    .rapor-filtre-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .75rem;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .rapor-tabs-spacer {
+      flex: 1 1 auto;
+    }
+    .rapor-tabs-filters {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      flex-wrap: wrap;
+      margin-left: auto;
+    }
+    .rapor-tabs-filters .input {
+      width: auto;
+      min-width: 170px;
+    }
+    .dash-back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: .55rem;
+      padding: .78rem 1.15rem;
+      border-radius: 999px;
+      border: 1px solid rgba(191, 219, 254, .95);
+      background: linear-gradient(135deg, rgba(239, 246, 255, .96), rgba(255, 255, 255, .94));
+      color: var(--primary-dark);
+      font-weight: 700;
+      text-decoration: none;
+      box-shadow: 0 12px 24px rgba(59, 130, 246, .12);
+      transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition), background var(--transition);
+    }
+    .dash-back-link:hover {
+      transform: translateY(-1px);
+      border-color: rgba(147, 197, 253, .98);
+      box-shadow: 0 16px 28px rgba(59, 130, 246, .18);
+      background: linear-gradient(135deg, rgba(219, 234, 254, .98), rgba(255, 255, 255, .96));
+    }
+    .dash-back-link .back-link-icon {
+      display: inline-grid;
+      place-items: center;
+      width: 1.8rem;
+      height: 1.8rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .92);
+      box-shadow: inset 0 0 0 1px rgba(191, 219, 254, .95);
+      font-size: .95rem;
+      line-height: 1;
+    }
+    .rapor-filtre-bar .input {
+      width: auto;
+      min-width: 180px;
+    }
+
+    .istat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: .75rem;
+      margin-bottom: 1.25rem;
+    }
+    .istat-kart {
+      background: rgba(255,255,255,.92);
+      border: 1px solid rgba(226, 232, 240, .95);
+      border-radius: 22px;
+      padding: 1rem;
+      text-align: center;
+      box-shadow: 0 14px 28px rgba(15, 23, 42, 0.05);
+    }
+    .istat-sayi {
+      font-family: "Manrope", "Segoe UI", system-ui, sans-serif;
+      font-size: 1.9rem;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: .25rem;
+    }
+    .istat-etiket {
+      font-size: .72rem;
+      color: var(--neutral-500);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .rapor-tablo-wrap {
+      overflow-x: auto;
+      border-radius: 20px;
+      border: 1px solid rgba(226, 232, 240, .95);
+      background: rgba(255,255,255,.78);
+    }
+    .rapor-tablo {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .85rem;
+    }
+    .rapor-tablo th {
+      background: rgba(248, 250, 252, .92);
+      padding: .8rem .9rem;
+      text-align: left;
+      font-size: .75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .09em;
+      color: var(--neutral-500);
+      border-bottom: 1px solid rgba(226, 232, 240, .95);
+      white-space: nowrap;
+    }
+    .rapor-tablo td {
+      padding: .7rem .9rem;
+      border-bottom: 1px solid var(--neutral-100);
+      vertical-align: top;
+    }
+    .rapor-tablo tbody tr:last-child td { border-bottom: none; }
+    .rapor-tablo:not(.kategori-tablo) tbody tr:hover td { background: var(--neutral-50); }
+
+    .bar-wrap {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      min-width: 120px;
+    }
+    .bar-bg {
+      flex: 1;
+      height: 8px;
+      background: var(--neutral-100);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: var(--primary);
+      transition: width .4s ease;
+    }
+    .bar-fill.b-renk { background: var(--accent); }
+    .bar-pct {
+      font-size: .75rem;
+      color: var(--neutral-400);
+      min-width: 2.5rem;
+      text-align: right;
+    }
+
+    .tablo-bos {
+      text-align: center;
+      padding: 2rem;
+      color: var(--neutral-400);
+      font-size: .85rem;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: .15rem .55rem;
+      border-radius: 999px;
+      font-size: .72rem;
+      font-weight: 600;
+    }
+    .badge-a { background: var(--primary-light); color: var(--primary-dark); }
+    .badge-b { background: #e0f2fe; color: #0369a1; }
+
+    .ogretmen-satir td:first-child { font-weight: 600; }
+
+    .yükleniyor-mesaj {
+      text-align: center;
+      padding: 2rem;
+      color: var(--neutral-400);
+    }
+
+    @media (max-width: 767px) {
+      .rapor-tabs {
+        width: 100%;
+      }
+      .rapor-tab,
+      #export-template-btn,
+      .rapor-filtre-bar .input,
+      .rapor-tabs-filters .input {
+        width: 100%;
+      }
+      .rapor-tabs-filters {
+        width: 100%;
+        margin-left: 0;
+      }
+      .rapor-tabs-spacer {
+        display: none;
+      }
+    }
+
+    @media print {
+      .dash-header-actions, .rapor-filtre-bar button, #export-btn { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============ HEADER ============ -->
+  <header class="dash-header">
+    <div class="dash-header-inner">
+      <div class="dash-brand">
+        <img class="dash-brand-icon" src="../../images/logo.png" alt="Okul Logosu" />
+        <div>
+          <span class="dash-brand-title">RİBA Rapor Ekranı</span>
+          <span class="dash-brand-sub">Rehberlik İhtiyaç Belirleme Anketi Sonuçları</span>
+        </div>
+      </div>
+      <div class="dash-header-actions">
+        <a href="../dashboard/index.html" class="dash-back-link" aria-label="Dashboard'a geri dön">
+          <span class="back-link-icon" aria-hidden="true">←</span>
+          <span>Geri Dön</span>
+        </a>
+        <span id="user-email" class="user-email"></span>
+        <button id="logout-btn" class="btn btn-outline">Çıkış Yap</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="dash-main">
+
+    <section class="card" id="okul-imza-paneli">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap;margin-bottom:1rem;">
+        <div>
+          <h3 style="margin-bottom:.35rem">İmza ve Excel Bilgileri</h3>
+          <p class="helper" style="margin:0">RİBA Excel indirmelerinde SONUÇ sekmesindeki okul adı ve imza alanları bu bilgilerle doldurulur.</p>
+        </div>
+        <span id="okul-imza-okul-adi" class="badge badge-a" style="font-size:.78rem">Okul bilgisi yükleniyor...</span>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;align-items:end;">
+        <div class="field" style="margin:0">
+          <label class="field-label" for="rehber-ogretmeni-input">Rehber Öğretmeni</label>
+          <input id="rehber-ogretmeni-input" class="input" type="text" placeholder="Ad Soyad" maxlength="120" />
+        </div>
+        <div class="field" style="margin:0">
+          <label class="field-label" for="okul-muduru-input">Okul Müdürü</label>
+          <input id="okul-muduru-input" class="input" type="text" placeholder="Ad Soyad" maxlength="120" />
+        </div>
+        <div class="field" style="margin:0">
+          <button id="okul-imza-kaydet-btn" class="btn btn-primary" type="button" style="width:100%;">Kaydet</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Anket Türü Sekmeleri -->
+    <section class="card rapor-shell">
+      <div class="rapor-tabs" id="rapor-tabs">
+        <button class="rapor-tab aktif" data-tur="ogrenci">👨‍🎓 Öğrenci</button>
+        <button class="rapor-tab"       data-tur="veli">👨‍👩‍👧 Veli</button>
+        <button class="rapor-tab"       data-tur="ogretmen">👨‍🏫 Öğretmen</button>
+        <button class="rapor-tab"       data-tur="okul">🏫 Okul</button>
+        <div class="rapor-tabs-spacer"></div>
+        <div class="rapor-tabs-filters">
+          <select id="filtre-sinif" class="input">
+            <option value="">Tüm Sınıflar</option>
+          </select>
+          <select id="filtre-kademe" class="input">
+            <option value="">Yükleniyor...</option>
+          </select>
+        <button id="export-template-btn" class="btn btn-outline" style="color:var(--success);border-color:var(--success);margin-left:auto;">📥 Excel İndir</button>
+        </div>
+      </div>
+
+      <!-- Filtre Satırı -->
+      <div class="rapor-filtre-bar"></div>
+
+      <!-- İstatistik Kartları (öğrenci/veli için) -->
+      <div class="istat-grid" id="istat-grid"></div>
+
+      <!-- Kategori Özet Tabloları -->
+      <div id="kategori-tables-container"></div>
+
+      <!-- Öğretmen Yanıt Listesi (sadece öğretmen sekmesinde) -->
+      <div id="ogretmen-liste-wrap" style="display:none">
+        <h3 style="margin-bottom:.75rem;font-size:.95rem">Öğretmen Yanıtları</h3>
+        <div class="rapor-tablo-wrap">
+          <table class="rapor-tablo">
+            <thead>
+              <tr>
+                <th>Ad Soyad</th>
+                <th>Branş</th>
+                <th>Sınıf</th>
+                <th>Kademe</th>
+                <th>Tarih</th>
+              </tr>
+            </thead>
+            <tbody id="ogretmen-tbody">
+              <tr><td colspan="5" class="tablo-bos">Yükleniyor...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <div id="toast-container" aria-live="polite"></div>
+  <script type="module" src="../../js/riba-rapor.js"></script>
+</body>
+</html>
