@@ -1,0 +1,249 @@
+/* =========================================================
+   Bozkurt Ortaokulu - Theme Variables
+   Merkezi Renk ve Tema Yönetimi
+   
+   @version 1.0
+   @lastModified 24-12-2025
+   
+   Bu dosya tüm sayfalarda kullanılan renk, font ve spacing
+   değişkenlerini içerir. Tema değişiklikleri buradan yapılır.
+   ========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+
+:root {
+    /* =========================================================
+       MARKA RENKLERİ (Brand Colors)
+       ========================================================= */
+    --brand-red: #E30613;
+    --brand-red-dark: #b30000;
+    --brand-red-light: #ff4757;
+    
+    /* =========================================================
+       ANA SAYFA RENKLERİ (Landing Page)
+       ========================================================= */
+    --landing-primary: #E30613;
+    --landing-primary-dark: #b30000;
+    
+    /* =========================================================
+       ÖĞRENCİ PANELİ RENKLERİ (Student Panel)
+       ========================================================= */
+    --student-primary: #384361;
+    --student-secondary: #ca2323;
+    --student-dark: #2d2424;
+    
+    /* =========================================================
+       ÖĞRETMEN PANELİ RENKLERİ (Teacher Panel)
+       ========================================================= */
+    --teacher-primary: #384361;
+    --teacher-secondary: #ca2323;
+    
+    /* =========================================================
+       SINAV PANELİ RENKLERİ (Exam Panel)
+       ========================================================= */
+    --exam-primary: #384361;
+    --exam-secondary: #ca2323;
+    
+    /* =========================================================
+       YÖNETİCİ PANELİ RENKLERİ (Admin Panel)
+       ========================================================= */
+    --admin-primary: #384361;
+    --admin-secondary: #ca2323;
+    
+    /* =========================================================
+       METIN RENKLERİ (Text Colors)
+       ========================================================= */
+    --text-main: #2d3748;
+    --text-secondary: #4a5568;
+    --text-muted: #718096;
+    --text-light: #a0aec0;
+    --text-white: #ffffff;
+    
+    /* =========================================================
+       ARKA PLAN RENKLERİ (Background Colors)
+       ========================================================= */
+    --bg-white: #ffffff;
+    --bg-light: #f7fafc;
+    --bg-gray: #edf2f7;
+    --bg-dark: #1a202c;
+    
+    /* =========================================================
+       GRADİENT ARKA PLANLAR (Gradient Backgrounds)
+       ========================================================= */
+    --gradient-bg: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    --gradient-primary: linear-gradient(135deg, #384361 0%, #2d2424 100%);
+    --gradient-secondary: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+    
+    /* =========================================================
+       KART VE PANEL RENKLERİ (Card & Panel Colors)
+       ========================================================= */
+    --card-bg: rgba(255, 255, 255, 0.25);
+    --card-bg-solid: rgba(255, 255, 255, 0.9);
+    --card-border: rgba(255, 255, 255, 0.4);
+    --card-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.10);
+    
+    /* =========================================================
+       INPUT VE FORM RENKLERİ (Input & Form Colors)
+       ========================================================= */
+    --input-bg: #f7fafc;
+    --input-border: #e2e8f0;
+    --input-focus-border: var(--brand-red);
+    --input-focus-shadow: 0 0 0 3px rgba(227, 6, 19, 0.1);
+    
+    /* =========================================================
+       TABLO RENKLERİ (Table Colors)
+       ========================================================= */
+    --table-border: rgba(66, 48, 48, 0.14);
+    --table-header-bg: #e7ecf3;
+    --table-hover-bg: #f1f4f9;
+    --table-stripe-bg: #fafbfc;
+    
+    /* =========================================================
+       SIDEBAR RENKLERİ (Sidebar Colors)
+       ========================================================= */
+    --sidebar-width: 280px;
+    --sidebar-bg: rgba(255, 255, 255, 0.1);
+    --sidebar-overlay: rgba(0, 0, 0, 0.4);
+    
+    /* =========================================================
+       DURUM RENKLERİ (Status Colors)
+       ========================================================= */
+    --success: #48bb78;
+    --success-light: #9ae6b4;
+    --success-dark: #28a745;
+    --warning: #ed8936;
+    --warning-light: #fbd38d;
+    --warning-dark: #d97706;
+    --warning-amber: #ffc107;
+    --error: #f56565;
+    --error-light: #fc8181;
+    --error-dark: #dc3545;
+    --info: #4299e1;
+    --info-light: #90cdf4;
+    --neutral: #6c757d;
+    
+    /* =========================================================
+       TREND RENKLERİ (Trend Colors - AI Modülleri)
+       ========================================================= */
+    --trend-positive: #10b981;  /* Yeşil - Yukarı trend */
+    --trend-negative: #ef4444;  /* Kırmızı - Aşağı trend */
+    --trend-neutral: #6b7280;   /* Gri - Değişim yok */
+    
+    /* =========================================================
+       FONT AİLELERİ (Font Families)
+       ========================================================= */
+    --font-primary: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    --font-mono: 'Courier New', monospace;
+    
+    /* =========================================================
+       FONT BOYUTLARI (Font Sizes)
+       ========================================================= */
+    --font-xs: 0.75rem;      /* 12px */
+    --font-sm: 0.875rem;     /* 14px */
+    --font-base: 1rem;       /* 16px */
+    --font-lg: 1.125rem;     /* 18px */
+    --font-xl: 1.25rem;      /* 20px */
+    --font-2xl: 1.5rem;      /* 24px */
+    --font-3xl: 1.875rem;    /* 30px */
+    --font-4xl: 2.25rem;     /* 36px */
+    --font-5xl: 3rem;        /* 48px */
+    
+    /* =========================================================
+       FONT AĞIRLIKLARI (Font Weights)
+       ========================================================= */
+    --font-normal: 400;
+    --font-medium: 600;
+    --font-bold: 700;
+    --font-extrabold: 800;
+    
+    /* =========================================================
+       SPACING (Boşluklar)
+       ========================================================= */
+    --spacing-xs: 0.25rem;   /* 4px */
+    --spacing-sm: 0.5rem;    /* 8px */
+    --spacing-md: 1rem;      /* 16px */
+    --spacing-lg: 1.5rem;    /* 24px */
+    --spacing-xl: 2rem;      /* 32px */
+    --spacing-2xl: 3rem;     /* 48px */
+    --spacing-3xl: 4rem;     /* 64px */
+    
+    /* =========================================================
+       BORDER RADIUS (Köşe Yuvarlaklığı)
+       ========================================================= */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-2xl: 20px;
+    --radius-full: 9999px;
+    
+    /* =========================================================
+       SHADOWS (Gölgeler)
+       ========================================================= */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    
+    /* =========================================================
+       TRANSITIONS (Geçişler)
+       ========================================================= */
+    --transition-fast: 0.15s ease;
+    --transition-base: 0.2s ease;
+    --transition-slow: 0.3s ease;
+    --transition-slower: 0.5s ease;
+    
+    /* =========================================================
+       Z-INDEX (Katman Sıralaması)
+       ========================================================= */
+    --z-dropdown: 1000;
+    --z-sticky: 1020;
+    --z-fixed: 1030;
+    --z-modal-backdrop: 1040;
+    --z-modal: 1050;
+    --z-popover: 1060;
+    --z-tooltip: 1070;
+}
+
+/* =========================================================
+   DARK MODE SUPPORT (Gelecek için hazır)
+   ========================================================= */
+/* @media (prefers-color-scheme: dark) {
+    :root {
+        Dark mode değişkenleri buraya eklenebilir
+    }
+} */
+
+/* =========================================================
+   GLOBAL STYLES
+   ========================================================= */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-primary);
+    color: var(--text-main);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-gray);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--text-light);
+    border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}

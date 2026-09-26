@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Yönetici Paneli — Rehberlik Sistemi</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="../../css/global.css" />
+  <link rel="stylesheet" href="../../css/dashboard.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+</head>
+<body>
+
+  <!-- ============ HEADER ============ -->
+  <header class="dash-header">
+    <div class="dash-header-inner">
+      <div class="dash-brand">
+        <img class="dash-brand-icon" src="../../images/logo.png" alt="Okul Logosu" />
+        <div>
+          <span class="dash-brand-title">Okul Rehberlik Sistemi</span>
+          <span class="dash-brand-sub">Yönetici Paneli</span>
+        </div>
+      </div>
+      <div class="dash-tabs dash-tabs-header" role="tablist" aria-label="Dashboard sekmeleri">
+        <button class="dash-main-tab aktif" id="tab-risk" data-panel="panel-risk" type="button">
+          📊 Risk Haritası
+        </button>
+        <button class="dash-main-tab" id="tab-riba" data-panel="panel-riba" type="button">
+          📋 RİBA Anketleri
+        </button>
+      </div>
+      <div class="dash-header-actions">
+        <span id="user-email" class="user-email"></span>
+        <button id="logout-btn" class="btn btn-outline">Çıkış Yap</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============ ANA İÇERİK ============ -->
+  <main class="dash-main">
+
+    <!-- ===== PANEL: Risk Haritası ===== -->
+    <div id="panel-risk">
+    <section class="stats-grid" aria-label="Genel İstatistikler">
+      <div class="stat-card">
+        <div class="stat-icon tone-primary">👥</div>
+        <div>
+          <div class="stat-value" id="stat-toplam">—</div>
+          <div class="stat-label">Toplam Öğrenci</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon tone-success">✓</div>
+        <div>
+          <div class="stat-value" id="stat-dolu">—</div>
+          <div class="stat-label">Form Dolduruldu</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon tone-warning">⏳</div>
+        <div>
+          <div class="stat-value" id="stat-bekleyen">—</div>
+          <div class="stat-label">Form Bekliyor</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon tone-danger">⚠</div>
+        <div>
+          <div class="stat-value" id="stat-riskli">—</div>
+          <div class="stat-label">Risk Tespit Edildi</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Veli Form Linki + Evrak Yükleme -->
+    <div class="dash-grid">
+
+      <!-- Veli Form Linki -->
+      <section class="card link-panel">
+        <div class="link-panel-header">
+          <h3>📤 Veli Form Linki</h3>
+          <p class="helper">Sınıf seçin ve oluşan linki velilere WhatsApp veya e-posta ile gönderin.</p>
+        </div>
+        <div class="field">
+          <label class="field-label" for="sinif-select">Sınıf</label>
+          <select id="sinif-select" class="input">
+            <option value="">— Önce öğrenci ekleyin —</option>
+          </select>
+        </div>
+        <div id="link-box" class="link-box hidden">
+          <div class="link-box-header">
+            <span class="link-box-title">Hazır bağlantı</span>
+            <span class="link-box-status">Paylaşıma hazır</span>
+          </div>
+          <input type="text" id="link-input" class="input" readonly aria-label="Veli form linki" />
+          <div class="link-box-actions">
+            <button id="copy-btn" class="btn btn-primary">Kopyala</button>
+            <a id="wp-btn" href="#" target="_blank" rel="noopener" class="btn btn-success">WhatsApp</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Evrak Yükleme -->
+      <section class="card">
+        <h3>📁 Evrak Yükleme</h3>
+        <p class="helper">Sisteme farklı e-Okul evraklarını yükleyerek öğrenci bilgilerini güncelleyin.</p>
+        <div class="dash-action-stack">
+          <a href="../import/index.html" class="btn btn-primary btn-full">📥 Öğrenci Listesi Yükle</a>
+          <a href="../ozel-egitim/index.html" class="btn btn-outline btn-full">📋 Özel Eğitim Listesi Yükle</a>
+          <a href="../grades/index.html" class="btn btn-outline btn-full">📊 Öğrenci Not Ortalaması Yükle</a>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Öğrenci Tablosu -->
+    <section class="card table-panel">
+      <div class="table-header">
+        <h3>📋 Öğrenci Listesi</h3>
+        <div class="table-filters">
+          <select id="filtre-sinif" class="input">
+            <option value="">Tüm Sınıflar</option>
+          </select>
+          <select id="filtre-durum" class="input">
+            <option value="">Tüm Durumlar</option>
+            <option value="bekleyen">Risk Anketi Bekliyor</option>
+            <option value="dolu">Risk Anketi Dolu</option>
+            <option value="riskli">Riskli</option>
+          </select>
+          <button id="risk-haritasi-btn" class="btn btn-outline" disabled title="Sınıf seçince aktif olur">📊 Risk Haritasını İndir</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table id="ogrenci-tablo" aria-label="Öğrenci listesi">
+          <thead>
+            <tr>
+              <th>Öğrenci No</th>
+              <th>Ad Soyad</th>
+              <th>Sınıf</th>
+              <th>Cinsiyet</th>
+              <th>Risk Anketi</th>
+              <th>Risk</th>
+              <th>Detay</th>
+            </tr>
+          </thead>
+          <tbody id="tablo-body">
+            <tr><td colspan="7" class="tablo-bos">Yükleniyor...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    </div><!-- /panel-risk -->
+
+    <!-- ===== PANEL: RİBA Anketleri ===== -->
+    <div id="panel-riba" style="display:none">
+
+      <!-- RİBA Hızlı Bağlantı Linkleri -->
+      <div class="dash-grid">
+
+        <section class="card link-panel" id="riba-link-paneli">
+          <div class="link-panel-header">
+              <h3>📋 RİBA Anket Linki</h3>
+              <p class="helper">Tür seçin; öğrenci ve veli için sınıfı, öğretmen için kademeyi belirleyip linki paylaşın.</p>
+          </div>
+          <div class="field" style="margin-top:.5rem">
+            <label class="field-label" for="riba-tur-select">Anket Türü</label>
+            <select id="riba-tur-select" class="input">
+              <option value="ogrenci">👨‍🎓 Öğrenci Anketi</option>
+              <option value="veli">👨‍👩‍👧 Veli Anketi</option>
+              <option value="ogretmen">👨‍🏫 Öğretmen Anketi</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field-label" for="riba-sinif-select">Sınıf</label>
+            <select id="riba-sinif-select" class="input">
+              <option value="">— Önce öğrenci ekleyin —</option>
+            </select>
+          </div>
+          <div class="field" id="riba-kademe-field" style="display:none">
+            <label class="field-label" for="riba-kademe-select">Kademe</label>
+            <select id="riba-kademe-select" class="input">
+              <option value="">— Kademe Seçin —</option>
+            </select>
+          </div>
+          <div id="riba-link-box" class="link-box hidden">
+            <div class="link-box-header">
+              <span class="link-box-title">Hazır bağlantı</span>
+              <span class="link-box-status">Paylaşıma hazır</span>
+            </div>
+            <input type="text" id="riba-link-input" class="input" readonly aria-label="RIBA anket linki" />
+            <div class="link-box-actions">
+              <button id="riba-copy-btn" class="btn btn-primary">Kopyala</button>
+              <a id="riba-wp-btn" href="#" target="_blank" rel="noopener" class="btn btn-success">WhatsApp</a>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <h3>📊 RİBA Raporları</h3>
+          <p class="helper">Tüm RIBA anket sonuçlarını görüntüleyin, kategori dağılımlarını ve madde bazlı istatistikleri inceleyin.</p>
+          <div class="dash-action-stack dash-action-stack-spaced">
+            <a href="../riba-rapor/index.html" class="btn btn-primary btn-full">📈 RİBA Rapor Ekranını Aç</a>
+          </div>
+          <div class="dash-note-box">
+            <p class="dash-note-text">
+              Rapor ekranında öğrenci, veli ve öğretmen anketlerini ayrı ayrı filtreleyebilir, sınıf bazlı ve okul geneli kategori dağılımlarını Excel olarak indirebilirsiniz.
+            </p>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- RİBA Öğrenci Tablosu -->
+      <section class="card table-panel table-panel-spaced">
+        <div class="table-header">
+          <h3>📋 Öğrenci RİBA Durum Listesi</h3>
+          <div class="table-filters">
+            <select id="filtre-riba-sinif" class="input">
+              <option value="">Tüm Sınıflar</option>
+            </select>
+            <select id="filtre-riba-durum" class="input">
+              <option value="">Tüm Durumlar</option>
+              <option value="bekleyen-ogrenci">Öğrenci Anketi Bekleyen</option>
+              <option value="dolu-ogrenci">Öğrenci Anketi Doldurmuş</option>
+              <option value="bekleyen-veli">Veli Anketi Bekleyen</option>
+              <option value="dolu-veli">Veli Anketi Doldurmuş</option>
+              <option value="dolu-tum">Tümü Doldurulmuş</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table id="riba-ogrenci-tablo" aria-label="RİBA Öğrenci listesi">
+            <thead>
+              <tr>
+                <th>Öğrenci No</th>
+                <th>Ad Soyad</th>
+                <th>Sınıf</th>
+                <th>Öğrenci Anketi</th>
+                <th>Veli Anketi</th>
+              </tr>
+            </thead>
+            <tbody id="riba-tablo-body">
+              <tr><td colspan="5" class="tablo-bos">Yükleniyor...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </div><!-- /panel-riba -->
+
+  </main>
+
+  <!-- Risk Detay Modalı -->
+  <div id="risk-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modal-title">Risk Detayı</h3>
+        <button id="modal-kapat" class="modal-close" aria-label="Kapat">✕</button>
+      </div>
+      <div id="modal-body" class="modal-body"></div>
+      <div id="modal-footer" class="modal-footer" style="display:none;padding:1rem;border-top:1px solid #e2e8f0;text-align:right">
+        <button id="modal-kaydet" class="btn btn-primary">İdare Notlarını Kaydet</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="surpriz-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="surpriz-modal-title">
+    <div class="modal surpriz-modal">
+      <button id="surpriz-kapat" class="modal-close surpriz-close" aria-label="Kapat">✕</button>
+      <div class="surpriz-media-wrap">
+        <img id="surpriz-gorsel" class="surpriz-gorsel" src="../../prank/pic.jpg" alt="Sürpriz görsel" />
+      </div>
+      <div class="surpriz-icerik">
+        <h3 id="surpriz-modal-title">Hayat seninle güzel 🖤🤍</h3>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-container" aria-live="polite"></div>
+
+  <script type="module" src="../../js/dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "ogrenciler",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "sinif",           "order": "ASCENDING" },
+        { "fieldPath": "form_dolduruldu", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "ogrenciler",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "sinif",           "order": "ASCENDING" },
+        { "fieldPath": "sube",            "order": "ASCENDING" },
+        { "fieldPath": "form_dolduruldu", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "ogrenciler",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "sinif",                   "order": "ASCENDING" },
+        { "fieldPath": "riba_ogrenci_dolduruldu", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "ogrenciler",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "sinif",                "order": "ASCENDING" },
+        { "fieldPath": "riba_veli_dolduruldu", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "riba_yanitlari",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "anket_turu", "order": "ASCENDING" },
+        { "fieldPath": "sinif",      "order": "ASCENDING" },
+        { "fieldPath": "sube",       "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "riba_yanitlari",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "anket_turu", "order": "ASCENDING" },
+        { "fieldPath": "kademe",     "order": "ASCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
