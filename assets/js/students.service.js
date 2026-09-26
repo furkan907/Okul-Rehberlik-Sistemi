@@ -1014,3 +1014,122 @@ export async function okulImzaBilgileriniKaydet(okulId, bilgiler = {}) {
     guncelleme_tarihi: serverTimestamp(),
   }, { merge: true });
 }
+
+// ============================================================
+// Veri Temizleme & Yeni Eğitim Yılı Sıfırlaması
+// ============================================================
+
+/**
+ * Belirtilen referanstaki tüm dokümanları toplu (batch) olarak siler.
+ * @param {import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js").CollectionReference} colRef 
+ * @param {Function} [onProgress] - (silinen: number, toplam: number) => void
+ * @returns {Promise<number>} - Silinen doküman sayısı
+ */
+async function koleksiyonuTopluSil(colRef, onProgress) {
+  const snap = await getDocs(colRef);
+  const total = snap.size;
+  if (total === 0) {
+    if (typeof onProgress === "function") onProgress(0, 0);
+    return 0;
+  }
+
+  let silinen = 0;
+  const CHUNK = 400;
+  for (let i = 0; i < snap.docs.length; i += CHUNK) {
+    const batch = writeBatch(db);
+    const slice = snap.docs.slice(i, i + CHUNK);
+    slice.forEach(d => {
+      batch.delete(d.ref);
+    });
+    await batch.commit();
+    silinen += slice.length;
+    if (typeof onProgress === "function") {
+      onProgress(silinen, total);
+    }
+  }
+  return silinen;
+}
+
+/**
+ * Okula ait mevcut kayıt sayılarını döner (Öğrenci, RİBA, Risk Haritası).
+ * @param {string} [okulId]
+ * @returns {Promise<{ogrenciSayisi: number, ribaSayisi: number, riskSayisi: number, toplam: number}>}
+ */
+export async function okulVeriSayilariniGetir(okulId = _okulId()) {
+  const [ogrenciSnap, ribaSnap, riskSnap] = await Promise.all([
+    getDocs(ogrencilerRef(okulId)),
+    getDocs(collection(db, "okullar", okulId, "riba_yanitlari")),
+    getDocs(riskHaritalariRef(okulId))
+  ]);
+
+  const ogrenciSayisi = ogrenciSnap.size;
+  const ribaSayisi = ribaSnap.size;
+  const riskSayisi = riskSnap.size;
+
+  return {
+    ogrenciSayisi,
+    ribaSayisi,
+    riskSayisi,
+    toplam: ogrenciSayisi + ribaSayisi + riskSayisi
+  };
+}
+
+/**
+ * Okula ait tüm öğrenci (ogrenciler), RİBA yanıtları (riba_yanitlari) ve
+ * risk haritası (risk_haritalari) koleksiyonlarını siler.
+ * Yeni eğitim-öğretim yılı başlangıcında sistemi sıfırdan kurmak için kullanılır.
+ * Okul kayıt dokümanı ve yönetici hesapları korunur.
+ * 
+ * @param {string} [okulId]
+ * @param {Function} [onStatus] - (mesaj: string, yuzde: number) => void
+ * @returns {Promise<{ogrenciSilindi: number, ribaSilindi: number, riskSilindi: number, toplam: number}>}
+ */
+export async function tumOkulVerileriniSil(okulId = _okulId(), onStatus) {
+  if (onStatus) onStatus("Öğrenci listesi taranıyor ve siliniyor...", 10);
+  const ogrenciSilindi = await koleksiyonuTopluSil(ogrencilerRef(okulId), (s, t) => {
+    if (onStatus) onStatus(`Öğrenciler siliniyor (${s}/${t})...`, 10 + Math.round((s / (t || 1)) * 35));
+  });
+
+  if (onStatus) onStatus("RİBA anket yanıtları siliniyor...", 50);
+  const ribaSilindi = await koleksiyonuTopluSil(collection(db, "okullar", okulId, "riba_yanitlari"), (s, t) => {
+    if (onStatus) onStatus(`RİBA anketleri siliniyor (${s}/${t})...`, 50 + Math.round((s / (t || 1)) * 25));
+  });
+
+  if (onStatus) onStatus("Risk haritası kayıtları siliniyor...", 75);
+  const riskSilindi = await koleksiyonuTopluSil(riskHaritalariRef(okulId), (s, t) => {
+    if (onStatus) onStatus(`Risk haritaları siliniyor (${s}/${t})...`, 75 + Math.round((s / (t || 1)) * 20));
+  });
+
+  if (onStatus) onStatus("Tüm veriler temizlendi!", 100);
+
+  return {
+    ogrenciSilindi,
+    ribaSilindi,
+    riskSilindi,
+    toplam: ogrenciSilindi + ribaSilindi + riskSilindi
+  };
+}
+
+/**
+ * Tek bir öğrenciyi ve bağlı risk değerlendirmesini siler.
+ * @param {string} ogrenciId
+ * @param {string} [okulId]
+ */
+export async function tekOgrenciSil(ogrenciId, okulId = _okulId()) {
+  const ogrenciDocRef = doc(db, "okullar", okulId, "ogrenciler", ogrenciId);
+  const ogrenciSnap = await getDoc(ogrenciDocRef);
+  const batch = writeBatch(db);
+
+  batch.delete(ogrenciDocRef);
+
+  if (ogrenciSnap.exists()) {
+    const ogr = ogrenciSnap.data();
+    const riskKimligi = ogrenciRiskKimliginiGetir(ogr);
+    if (riskKimligi?.risk_belge_id) {
+      batch.delete(doc(db, "okullar", okulId, "risk_haritalari", riskKimligi.risk_belge_id));
+    }
+  }
+
+  await batch.commit();
+}
+

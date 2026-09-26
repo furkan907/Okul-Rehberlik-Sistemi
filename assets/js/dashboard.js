@@ -18,7 +18,10 @@ import { tumOgrencileriGetir,
          idareNotlariKaydet,
          ribaTamamlanmaBayraklariniEsitle,
          ogrenciNoGetir,
-         riskAnketDoldurulduMu }    from "./students.service.js";
+         riskAnketDoldurulduMu,
+         okulVeriSayilariniGetir,
+         tumOkulVerileriniSil,
+         tekOgrenciSil }    from "./students.service.js";
 import { tumRibaYanitlariniGetir,
          ribaLegacyYanitMi,
          ribaEksikLegacyYanitMi } from "./riba.service.js";
@@ -250,6 +253,7 @@ adminKoruması(async (user, profil) => {
   kurLinkPaneli();
   kurRibaLinkPaneli();
   kurModal();
+  kurTumVerileriSilModal();
 });
 
 function surprizModaliniKur(user) {
@@ -1112,6 +1116,129 @@ function kurModal() {
   document.getElementById("modal-kaydet").addEventListener("click", () => {
     const id = document.getElementById("modal-kaydet").dataset.ogrId;
     if (id) window._idareKaydet(id);
+  });
+
+  document.getElementById("modal-ogrenci-sil")?.addEventListener("click", async () => {
+    const id = document.getElementById("modal-kaydet").dataset.ogrId;
+    if (!id) return;
+    const ogr = tumOgrenciler.find(o => o.id === id);
+    const adSoyad = ogr ? `${ogr.ad} ${ogr.soyad}` : "Seçili öğrenci";
+    if (!confirm(`"${adSoyad}" isimli öğrenciyi ve bu öğrenciye ait tüm risk kayıtlarını kalıcı olarak silmek istediğinizden emin misiniz?`)) {
+      return;
+    }
+
+    try {
+      await tekOgrenciSil(id, window.__okulCtx?.okul_id);
+      toast.basari(`${adSoyad} başarıyla silindi.`);
+      kapat();
+      await verileriYukle();
+    } catch (e) {
+      toast.hata("Öğrenci silinemedi: " + (e.message || e));
+    }
+  });
+}
+
+/**
+ * Yeni Eğitim Yılı için tüm okul verilerini (öğrenciler, riba yanıtları, risk haritaları)
+ * sıfırlama modalını ve onay akışını yönetir.
+ */
+function kurTumVerileriSilModal() {
+  const btn = document.getElementById("btn-tum-verileri-sil");
+  const modal = document.getElementById("tum-sil-modal");
+  const kapatBtn = document.getElementById("tum-sil-kapat");
+  const iptalBtn = document.getElementById("tum-sil-iptal-btn");
+  const onayBtn = document.getElementById("tum-sil-onay-btn");
+  const onayInput = document.getElementById("tum-sil-onay-input");
+  const progressWrap = document.getElementById("tum-sil-progress-wrap");
+  const progressBar = document.getElementById("tum-sil-progress-bar");
+  const progressText = document.getElementById("tum-sil-progress-text");
+
+  const sayiOgrenci = document.getElementById("sil-sayi-ogrenci");
+  const sayiRiba = document.getElementById("sil-sayi-riba");
+  const sayiRisk = document.getElementById("sil-sayi-risk");
+
+  if (!btn || !modal) return;
+
+  const modalKapat = () => {
+    modal.classList.add("hidden");
+    if (onayInput) onayInput.value = "";
+    if (onayBtn) {
+      onayBtn.disabled = true;
+      onayBtn.textContent = "🗑️ Tüm Verileri Kalıcı Olarak Sil";
+    }
+    if (iptalBtn) iptalBtn.disabled = false;
+    if (onayInput) onayInput.disabled = false;
+    if (progressWrap) progressWrap.classList.add("hidden");
+    if (progressBar) progressBar.style.width = "0%";
+  };
+
+  kapatBtn?.addEventListener("click", modalKapat);
+  iptalBtn?.addEventListener("click", modalKapat);
+  modal.addEventListener("click", (e) => { if (e.target === modal) modalKapat(); });
+
+  btn.addEventListener("click", async () => {
+    modal.classList.remove("hidden");
+    if (onayInput) {
+      onayInput.value = "";
+      onayInput.disabled = false;
+    }
+    if (onayBtn) onayBtn.disabled = true;
+    if (iptalBtn) iptalBtn.disabled = false;
+    if (progressWrap) progressWrap.classList.add("hidden");
+
+    if (sayiOgrenci) sayiOgrenci.textContent = "Hesaplanıyor...";
+    if (sayiRiba) sayiRiba.textContent = "Hesaplanıyor...";
+    if (sayiRisk) sayiRisk.textContent = "Hesaplanıyor...";
+
+    try {
+      const sayilar = await okulVeriSayilariniGetir(window.__okulCtx?.okul_id);
+      if (sayiOgrenci) sayiOgrenci.textContent = `${sayilar.ogrenciSayisi} Öğrenci Kaydı`;
+      if (sayiRiba) sayiRiba.textContent = `${sayilar.ribaSayisi} Anket Yanıtı`;
+      if (sayiRisk) sayiRisk.textContent = `${sayilar.riskSayisi} Risk Haritası Kaydı`;
+    } catch (_) {
+      if (sayiOgrenci) sayiOgrenci.textContent = `${tumOgrenciler.length} Öğrenci`;
+      if (sayiRiba) sayiRiba.textContent = `${tumRibaYanitlari.length} Anket Yanıtı`;
+      if (sayiRisk) sayiRisk.textContent = "Mevcut tüm kayıtlar";
+    }
+
+    onayInput?.focus();
+  });
+
+  onayInput?.addEventListener("input", () => {
+    const val = (onayInput.value || "").trim().toLocaleUpperCase("tr");
+    if (onayBtn) onayBtn.disabled = (val !== "SİL");
+  });
+
+  onayBtn?.addEventListener("click", async () => {
+    const val = (onayInput.value || "").trim().toLocaleUpperCase("tr");
+    if (val !== "SİL") return;
+
+    try {
+      onayBtn.disabled = true;
+      onayBtn.textContent = "Siliniyor...";
+      if (iptalBtn) iptalBtn.disabled = true;
+      if (onayInput) onayInput.disabled = true;
+      if (progressWrap) progressWrap.classList.remove("hidden");
+
+      await tumOkulVerileriniSil(window.__okulCtx?.okul_id, (msg, pct) => {
+        if (progressText) progressText.textContent = msg;
+        if (progressBar) progressBar.style.width = `${pct}%`;
+      });
+
+      toast.basari("Tüm öğrenci, risk haritası ve RİBA kayıtları başarıyla silindi! Yeni eğitim yılı için hazır.");
+      modalKapat();
+      await verileriYukle();
+    } catch (err) {
+      console.error(err);
+      toast.hata("Veriler silinirken hata oluştu: " + (err.message || err));
+      if (progressText) progressText.textContent = "❌ Hata: " + (err.message || err);
+      if (onayBtn) {
+        onayBtn.disabled = false;
+        onayBtn.textContent = "🗑️ Tekrar Dene";
+      }
+      if (iptalBtn) iptalBtn.disabled = false;
+      if (onayInput) onayInput.disabled = false;
+    }
   });
 }
 

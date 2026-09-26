@@ -1,0 +1,203 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function onlyRibaTamamlanmaAlaniGuncelleniyor() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+        "riba_ogrenci_dolduruldu",
+        "riba_veli_dolduruldu"
+      ]);
+    }
+
+    function gecerliPublicRibaGuncellemesi() {
+      return onlyRibaTamamlanmaAlaniGuncelleniyor()
+        && (
+          (
+            request.resource.data.riba_ogrenci_dolduruldu == true
+            && resource.data.riba_ogrenci_dolduruldu == false
+            && request.resource.data.riba_veli_dolduruldu == resource.data.riba_veli_dolduruldu
+          )
+          ||
+          (
+            request.resource.data.riba_veli_dolduruldu == true
+            && resource.data.riba_veli_dolduruldu == false
+            && request.resource.data.riba_ogrenci_dolduruldu == resource.data.riba_ogrenci_dolduruldu
+          )
+        );
+    }
+
+    function onlyRiskOzetAlanlariGuncelleniyor() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+        "risk_anket_dolduruldu",
+        "risk_skoru",
+        "gonderim_tarihi"
+      ]);
+    }
+
+    function riskKademe(data) {
+      return data.kademe != null
+        ? data.kademe
+        : (
+          data.sinif in ["9", "10", "11", "12"]
+            ? "lise"
+            : "ortaokul"
+        );
+    }
+
+    function riskOgrenciAnahtari(data) {
+      return riskKademe(data) + "__" + data.sinif + "__" + data.sube + "__" + data.ogrenci_no;
+    }
+
+    function riskBelgeId(data) {
+      return "risk__" + riskOgrenciAnahtari(data);
+    }
+
+    function gecerliPublicRiskOzetGuncellemesi(okulId, ogrenciId) {
+      return onlyRiskOzetAlanlariGuncelleniyor()
+        && (resource.data.risk_anket_dolduruldu == false || resource.data.form_dolduruldu == false)
+        && request.resource.data.risk_anket_dolduruldu == true
+        && request.resource.data.risk_skoru is int
+        && getAfter(/databases/$(database)/documents/okullar/$(okulId)/risk_haritalari/$(riskBelgeId(request.resource.data))).data.ogrenci_id == ogrenciId
+        && getAfter(/databases/$(database)/documents/okullar/$(okulId)/risk_haritalari/$(riskBelgeId(request.resource.data))).data.risk_anket_dolduruldu == true;
+    }
+
+    function publicRiskHaritasiGecerli(okulId, riskId) {
+      return exists(/databases/$(database)/documents/okullar/$(okulId)/ogrenciler/$(request.resource.data.ogrenci_id))
+        && (
+          get(/databases/$(database)/documents/okullar/$(okulId)/ogrenciler/$(request.resource.data.ogrenci_id)).data.risk_anket_dolduruldu == false
+          || get(/databases/$(database)/documents/okullar/$(okulId)/ogrenciler/$(request.resource.data.ogrenci_id)).data.form_dolduruldu == false
+        )
+        && request.resource.data.ogrenci_id is string
+        && request.resource.data.ogrenci_no is string
+        && request.resource.data.sinif is string
+        && request.resource.data.sube is string
+        && request.resource.data.kademe is string
+        && riskId == riskBelgeId(request.resource.data)
+        && request.resource.data.risk_anket_dolduruldu == true
+        && request.resource.data.form_verisi is map
+        && request.resource.data.risk_detaylari is map
+        && request.resource.data.risk_skoru is int
+        && get(/databases/$(database)/documents/okullar/$(okulId)/ogrenciler/$(request.resource.data.ogrenci_id)).data.ogrenci_no == request.resource.data.ogrenci_no
+        && get(/databases/$(database)/documents/okullar/$(okulId)/ogrenciler/$(request.resource.data.ogrenci_id)).data.sinif == request.resource.data.sinif
+        && get(/databases/$(database)/documents/okullar/$(okulId)/ogrenciler/$(request.resource.data.ogrenci_id)).data.sube == request.resource.data.sube
+        && riskKademe(get(/databases/$(database)/documents/okullar/$(okulId)/ogrenciler/$(request.resource.data.ogrenci_id)).data) == request.resource.data.kademe;
+    }
+
+    function ribaOgrenciAnahtari(data) {
+      return data.kademe + "__" + data.sinif + "__" + data.sube + "__" + data.ogrenci_no;
+    }
+
+    function ribaYanitBelgeId(data) {
+      return data.anket_turu + "__" + ribaOgrenciAnahtari(data);
+    }
+
+    function publicOgrenciRibaYanitiGecerli(okulId, responseId) {
+      return request.resource.data.anket_turu in ["ogrenci", "veli"]
+        && request.resource.data.ogrenci_id is string
+        && request.resource.data.ogrenci_no is string
+        && request.resource.data.sinif is string
+        && request.resource.data.sube is string
+        && request.resource.data.kademe is string
+        && responseId == ribaYanitBelgeId(request.resource.data)
+        && exists(/databases/$(database)/documents/okullar/$(okulId)/ogrenciler/$(request.resource.data.ogrenci_id))
+        && (
+          get(/databases/$(database)/documents/okullar/$(okulId)/ogrenciler/$(request.resource.data.ogrenci_id)).data.ogrenci_no == request.resource.data.ogrenci_no
+          || (
+            get(/databases/$(database)/documents/okullar/$(okulId)/ogrenciler/$(request.resource.data.ogrenci_id)).data.ogrenci_no == null
+            && get(/databases/$(database)/documents/okullar/$(okulId)/ogrenciler/$(request.resource.data.ogrenci_id)).data.tc == request.resource.data.ogrenci_no
+          )
+        )
+        && get(/databases/$(database)/documents/okullar/$(okulId)/ogrenciler/$(request.resource.data.ogrenci_id)).data.sinif == request.resource.data.sinif
+        && get(/databases/$(database)/documents/okullar/$(okulId)/ogrenciler/$(request.resource.data.ogrenci_id)).data.sube == request.resource.data.sube;
+    }
+
+    // Rolü "superadmin" olan giriş yapmış kullanıcı
+    function isSuperAdmin() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "superadmin";
+    }
+
+    // Rolü "admin" olan giriş yapmış kullanıcı
+    function isAdmin() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
+    }
+
+    // Rolü "ogretmen" olan giriş yapmış kullanıcı
+    function isTeacher() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "ogretmen";
+    }
+
+    // Yetkili okul kullanıcısı (admin, superadmin veya ogretmen)
+    function isAuthorizedUser() {
+      return isAdmin() || isSuperAdmin() || isTeacher();
+    }
+
+    function isAdminForSchool(okulId) {
+      return isAdmin()
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.okul_id == okulId;
+    }
+
+    function canManagePendingTeacher() {
+      return resource.data.role == "beklemede"
+        && resource.data.requested_role == "ogretmen"
+        && isAdminForSchool(resource.data.okul_id);
+    }
+
+    function canUpdatePendingTeacher() {
+      return canManagePendingTeacher()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["role", "siniflar"])
+        && request.resource.data.role in ["ogretmen", "reddedildi"]
+        && request.resource.data.requested_role == resource.data.requested_role
+        && request.resource.data.okul_id == resource.data.okul_id;
+    }
+
+    // Kullanıcı profilleri
+    // - Kendi profilini oluşturma/okuma/güncelleme (kayıt akışı için)
+    // - Süperadmin tüm profilleri okur ve yönetir (onay/red/silme işlemi)
+    // - Silme: yalnızca superadmin (kullanıcı kendi profilini silemez = privilege escalation önleme)
+    match /users/{userId} {
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow read:   if request.auth != null
+                      && (request.auth.uid == userId || isSuperAdmin() || canManagePendingTeacher());
+      allow update: if request.auth != null
+                      && (request.auth.uid == userId || isSuperAdmin() || canUpdatePendingTeacher());
+      allow delete: if isSuperAdmin();
+    }
+
+    // Okul kayıt dokümanları (/okullar/{okulId} — sadece metadata, alt koleksiyonlar ayrı)
+    // Okuma: herkese açık (kayıt formunun okul admin kontrolü oturum gerektirmez)
+    match /okullar/{okulId} {
+      allow read: if true;
+      allow write: if isAuthorizedUser();
+    }
+
+    // Öğrenci verileri — okuma herkese açık (veli formu için), yazma admin+
+    match /okullar/{okulId}/ogrenciler/{ogrenciId} {
+      allow read: if true;
+      allow create, delete: if isAuthorizedUser();
+      allow update: if isAuthorizedUser() || gecerliPublicRibaGuncellemesi() || gecerliPublicRiskOzetGuncellemesi(okulId, ogrenciId);
+    }
+
+    match /okullar/{okulId}/risk_haritalari/{riskId} {
+      allow create: if isAuthorizedUser() || publicRiskHaritasiGecerli(okulId, riskId);
+      allow read, update, delete: if isAuthorizedUser();
+    }
+
+    // RIBA anket yanıtları — oluşturma herkese açık (veli/öğrenci doldurur)
+    match /okullar/{okulId}/riba_yanitlari/{responseId} {
+      allow create: if isAuthorizedUser() || publicOgrenciRibaYanitiGecerli(okulId, responseId) || request.resource.data.anket_turu == "ogretmen";
+      allow read, update, delete: if isAuthorizedUser();
+    }
+
+    // Diğer koleksiyonlara erişimi engelle
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -9,6 +9,19 @@ export default defineConfig(({mode}) => {
     plugins: [react(), tailwindcss()],
     build: {
       target: 'esnext',
+      rollupOptions: {
+        input: {
+          main: path.resolve(__dirname, 'index.html'),
+          dashboard: path.resolve(__dirname, 'assets/pages/dashboard/index.html'),
+          form: path.resolve(__dirname, 'assets/pages/form/index.html'),
+          grades: path.resolve(__dirname, 'assets/pages/grades/index.html'),
+          import: path.resolve(__dirname, 'assets/pages/import/index.html'),
+          login: path.resolve(__dirname, 'assets/pages/login/index.html'),
+          ozelEgitim: path.resolve(__dirname, 'assets/pages/ozel-egitim/index.html'),
+          riba: path.resolve(__dirname, 'assets/pages/riba/index.html'),
+          ribaRapor: path.resolve(__dirname, 'assets/pages/riba-rapor/index.html'),
+        },
+      },
     },
     optimizeDeps: {
       esbuildOptions: {
