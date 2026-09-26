@@ -1,0 +1,27 @@
+{
+  "entities": {
+    "Student": {
+      "title": "Öğrenci",
+      "description": "Öğrenci temel bilgileri ve risk durumu",
+      "type": "object",
+      "properties": {
+        "tc": { "type": "string", "description": "T.C. Kimlik Numarası" },
+        "ad": { "type": "string" },
+        "soyad": { "type": "string" },
+        "sinif": { "type": "string" },
+        "sube": { "type": "string" },
+        "form_dolduruldu": { "type": "boolean" },
+        "risk_skoru": { "type": "number" },
+        "risk_detaylari": { "type": "object" },
+        "son_guncellenme": { "type": "string", "format": "date-time" }
+      },
+      "required": ["tc", "ad", "soyad", "sinif"]
+    }
+  },
+  "firestore": {
+    "ogrenciler/{studentId}": {
+      "schema": "Student",
+      "description": "Öğrenci listesi koleksiyonu"
+    }
+  }
+}
